@@ -15,10 +15,14 @@ export default defineConfig(() => {
       chunkSizeWarningLimit: 1200,
     },
     server: {
-      // HMR is disabled in AI Studio via DISABLE_HMR env var.
-      // Do not modify—file watching is disabled to prevent flickering during agent edits.
-      hmr: process.env.DISABLE_HMR !== 'true',
-      // Disable file watching when DISABLE_HMR is true to save CPU during agent edits.
+      host: '0.0.0.0',
+      port: 3000,
+      strictPort: false,
+      // Allow the hosted development environment to proxy HMR.
+      hmr: {
+        protocol: 'wss',
+        clientPort: 443,
+      },
       watch: process.env.DISABLE_HMR === 'true' ? null : {},
     },
   };
