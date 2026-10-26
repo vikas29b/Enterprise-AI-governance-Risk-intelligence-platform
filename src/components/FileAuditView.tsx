@@ -116,10 +116,18 @@ export const FileAuditView: React.FC<FileAuditViewProps> = ({
   // Download redacted dataset
   const handleDownloadRedacted = () => {
     let sanitized = activeContent;
-    scanResult?.piiViolations.forEach((v) => {
-      // replace unmasked strings with tokens
-      sanitized = sanitized.replace(new RegExp(v.valueMasked.replace(/\*/g, '\\d'), 'g'), `[REDACTED_${v.type.toUpperCase().replace(/\s+/g, '_')}]`);
-    });
+    // Redact Aadhaar
+    sanitized = sanitized.replace(/\b[2-9]\d{3}\s?\d{4}\s?\d{4}\b/g, '[REDACTED_AADHAAR]');
+    // Redact PAN
+    sanitized = sanitized.replace(/\b[A-Z]{5}[0-9]{4}[A-Z]\b/g, '[REDACTED_PAN_CARD]');
+    // Redact Phone
+    sanitized = sanitized.replace(/\b(?:\+91|91)?[6-9]\d{9}\b/g, '[REDACTED_MOBILE]');
+    // Redact Credit Cards
+    sanitized = sanitized.replace(/\b(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14}|6(?:011|5[0-9]{2})[0-9]{12}|3[47][0-9]{13})\b/g, '[REDACTED_CREDIT_CARD]');
+    // Redact AWS Keys
+    sanitized = sanitized.replace(/\bAKIA[0-9A-Z]{16}\b/g, '[REDACTED_AWS_KEY]');
+    // Redact Emails
+    sanitized = sanitized.replace(/\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g, '[REDACTED_EMAIL]');
 
     const blob = new Blob([sanitized], { type: 'text/plain;charset=utf-8' });
     const url = URL.createObjectURL(blob);
